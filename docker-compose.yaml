@@ -82,7 +82,7 @@ services:
     # # UI & DBs
 
     # # foxglove ui
-    studio:
+    foxglove:
         image: ghcr.io/foxglove/studio:latest #foxglove
         container_name: foxglove
         restart: unless-stopped
@@ -91,6 +91,18 @@ services:
         environment:
             ROS_DISCOVERY_SERVER: fastdds:11811
             RMW_IMPLEMENTATION: rmw_fastrtps_cpp
+
+    # ros data recorder
+    # https://gist.github.com/vbschettino/13c1d0102fa184811b31397cb9a4e85d
+    foxglove_agent:
+        image: foxglove_agent
+        build:
+            context: ./foxglove_agent
+        container_name: foxglove_agent
+        volumes:
+         - ./recordings:/srv/foxglove/agent/storage
+        environment:
+            ROS_DISCOVERY_SERVER: fastdds:11811
 
     # # s3 file server
     # minio:
@@ -125,7 +137,6 @@ services:
     #     container_name: ros_record
     #     environment:
     #         ROS_DISCOVERY_SERVER: fastdds:11811
-
 
 networks:
     default:
