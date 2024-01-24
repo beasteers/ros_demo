@@ -1,0 +1,58 @@
+version: '3.7'
+
+services:
+  publish:
+    container_name: publish
+    build:
+      context: .
+    # command: python3 publish_foxglove.py /helloworld
+    # command: python3 publish_foxglove.py /cam /ptg/DemoVideos/M2-101.mp4
+    # command: python3 publish_rospy.py /helloworld
+    command: python3 publish_rospy.py /cam /ptg/DemoVideos/M2-101.mp4
+    # command: python3 publish_ws.py /helloworld
+    # command: python3 publish_ws.py /cam /ptg/DemoVideos/M2-101.mp4
+    volumes:
+     - /tmp/.X11-unix:/tmp/.X11-unix
+     - ~/ptg:/ptg
+    environment:
+      DISPLAY: $DISPLAY
+      ROS_DISCOVERY_SERVER: fastdds:11811
+
+
+  # listen:
+  #   container_name: listen
+  #   build:
+  #     context: .
+  #   # command: python3 listen_foxglove.py /helloworld --throttle 3
+  #   command: python3 listen_foxglove.py /cam
+  #   # command: python3 listen_rospy.py /helloworld --throttle 3
+  #   # command: python3 listen_rospy.py /cam
+  #   # command: python3 listen_ws.py /helloworld --throttle 3
+  #   # command: python3 listen_ws.py /cam
+  #   volumes:
+  #    - /tmp/.X11-unix:/tmp/.X11-unix
+  #   environment:
+  #     DISPLAY: $DISPLAY
+  #     ROS_DISCOVERY_SERVER: fastdds:11811
+
+  # listenerslow:
+  #   container_name: listenslow
+  #   build:
+  #     context: .
+  #   # command: python3 listen_foxglove.py /helloworld --throttle 3
+  #   command: python3 listen_foxglove.py /cam
+  #   # command: python3 listen_rospy.py /helloworld --throttle 3
+  #   # command: python3 listen_rospy.py /cam --throttle 0.5
+  #   # command: python3 listen_ws.py /helloworld --throttle 3
+  #   # command: python3 listen_ws.py /cam --throttle_rate 2
+  #   volumes:
+  #    - /tmp/.X11-unix:/tmp/.X11-unix
+  #   environment:
+  #     DISPLAY: $DISPLAY
+  #     ROS_DISCOVERY_SERVER: fastdds:11811
+
+
+networks:
+  default:
+    name: ros
+    external: true

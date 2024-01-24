@@ -1,0 +1,132 @@
+version: "3.7"
+
+services:
+    # ROS Core Infrastructure
+
+    # discovery server
+    fastdds:
+        # image: osrf/ros:humble-desktop
+        image: fastdds
+        build:
+            context: ./fastdds
+        container_name: fastdds
+        # ports:
+        #  - 11811:11811
+        # volumes:
+        #  - /dev/shm:/dev/shm
+        # expose:
+        #  - "11811"
+        # command: fastdds discovery --server-id 0
+        environment:
+            RMW_IMPLEMENTATION: rmw_fastrtps_cpp
+        # network_mode: host
+        # ipc: host
+
+    # # ros websocket bridge
+    # rosbridge:
+    #     image: rosbridge_server
+    #     build:
+    #         context: ./rosbridge_server
+    #     container_name: rosbridge
+    #     ports:
+    #      - "9090:9090"
+    #     environment:
+    #         ROS_DISCOVERY_SERVER: host.docker.internal:11811
+    #         RMW_IMPLEMENTATION: rmw_fastrtps_cpp
+
+    # ros websocket bridge
+    foxglove_bridge:
+        image: foxglove_bridge
+        build:
+            context: ./foxglove_bridge
+        container_name: foxglove_bridge
+        ports:
+         - "8765:8765"
+        environment:
+            ROS_DISCOVERY_SERVER: fastdds:11811
+            RMW_IMPLEMENTATION: rmw_fastrtps_cpp
+
+    publish:
+        container_name: publish
+        build:
+            context: ./testers
+        # command: python3 publish_foxglove.py /helloworld
+        # command: python3 publish_foxglove.py /cam /ptg/DemoVideos/M2-101.mp4
+        # command: python3 publish_rospy.py /helloworld
+        command: python3 publish_rospy.py cam /ptg/DemoVideos/M2-101.mp4
+        # command: python3 publish_ws.py /helloworld
+        # command: python3 publish_ws.py /cam /ptg/DemoVideos/M2-101.mp4
+        volumes:
+        - /tmp/.X11-unix:/tmp/.X11-unix
+        - ~/ptg:/ptg
+        environment:
+            DISPLAY: $DISPLAY
+            ROS_DISCOVERY_SERVER: fastdds:11811
+
+    listen:
+        container_name: listen
+        build:
+            context: testers
+        # command: python3 listen_foxglove.py /helloworld --throttle 3
+        # command: python3 listen_foxglove.py /cam
+        # command: python3 listen_rospy.py /helloworld --throttle 3
+        command: python3 listen_rospy.py cam
+        # command: python3 listen_ws.py /helloworld --throttle 3
+        # command: python3 listen_ws.py /cam
+        volumes:
+        - /tmp/.X11-unix:/tmp/.X11-unix
+        environment:
+            DISPLAY: $DISPLAY
+            ROS_DISCOVERY_SERVER: fastdds:11811
+
+    # # UI & DBs
+
+    # # foxglove ui
+    studio:
+        image: ghcr.io/foxglove/studio:latest #foxglove
+        container_name: foxglove
+        restart: unless-stopped
+        ports:
+         - "8080:8080"
+        environment:
+            ROS_DISCOVERY_SERVER: fastdds:11811
+            RMW_IMPLEMENTATION: rmw_fastrtps_cpp
+
+    # # s3 file server
+    # minio:
+    #     image: quay.io/minio/minio
+    #     container_name: minio
+    #     command: server /data --console-address ":9001"
+    #     ports:
+    #     - "9000:9000"
+    #     - "9001:9001"
+    #     volumes:
+    #     - ./data/minio:/data
+    #     environment:
+    #         MINIO_ROOT_USER: minioadmin
+    #         MINIO_ROOT_PASSWORD: minioadmin
+
+    # # database
+    # rethinkdb:
+    #     image: rethinkdb
+    #     container_name: rethinkdb
+    #     command: rethinkdb --bind all
+    #     ports:
+    #      - 8080:8080
+    #      - 28015:28015
+    #      - 29015:29015
+    #     volumes:
+    #      - ./data/rethinkdb:/data
+
+    # # ros data recorder
+    # # https://gist.github.com/vbschettino/13c1d0102fa184811b31397cb9a4e85d
+    # ros_record:
+    #     image: ros_record
+    #     container_name: ros_record
+    #     environment:
+    #         ROS_DISCOVERY_SERVER: fastdds:11811
+
+
+networks:
+    default:
+        name: ros
