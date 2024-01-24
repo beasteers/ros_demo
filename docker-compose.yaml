@@ -51,14 +51,14 @@ services:
         build:
             context: ./testers
         # command: python3 publish_foxglove.py /helloworld
-        # command: python3 publish_foxglove.py /cam /ptg/DemoVideos/M2-101.mp4
+        # command: python3 publish_foxglove.py /cam /data/M2-101.mp4
         # command: python3 publish_rospy.py /helloworld
-        command: python3 publish_rospy.py cam /ptg/DemoVideos/M2-101.mp4
+        command: python3 publish_rospy.py cam /data/M2-101.mp4
         # command: python3 publish_ws.py /helloworld
-        # command: python3 publish_ws.py /cam /ptg/DemoVideos/M2-101.mp4
+        # command: python3 publish_ws.py /cam /data/M2-101.mp4
         volumes:
         - /tmp/.X11-unix:/tmp/.X11-unix
-        - ~/ptg:/ptg
+        - ~/data:/data
         environment:
             DISPLAY: $DISPLAY
             ROS_DISCOVERY_SERVER: fastdds:11811
